@@ -1,0 +1,2 @@
+# WuqiFacepayAndroid
+使用百度离线采集SDK进行人脸注册
