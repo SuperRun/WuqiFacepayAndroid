@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="800dp"
+    android:orientation="vertical"
+    android:background="@drawable/shape_corner"
+    android:gravity="center_horizontal"
+    android:paddingTop="@dimen/lg_member_layout_padding"
+    android:paddingBottom="200dp"
+    android:paddingLeft="@dimen/lg_member_layout_padding"
+    android:paddingRight="@dimen/lg_member_layout_padding"
+    tools:ignore="MissingDefaultResource">
+
+    <ImageView
+        android:id="@+id/closeResultTip"
+        android:layout_width="@dimen/lg_member_closeSize"
+        android:layout_height="@dimen/lg_member_closeSize"
+        android:background="@drawable/close"
+        android:layout_gravity="right"/>
+
+    <LinearLayout
+        android:layout_width="600dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+        <ImageView
+            android:layout_marginTop="100dp"
+            android:layout_marginBottom="100dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/add_member_success"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开通成功"
+            android:layout_marginBottom="60dp"
+            android:textColor="@color/resultWxSuccessTextColor"
+            android:textSize="@dimen/lg_member_result_title_textSize"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/lg_member_result_tip_textSize"
+            android:textColor="@color/resultTipFailedTextColor"
+            android:text="你好，xx!"/>
+    </LinearLayout>
+
+
+
+</LinearLayout>
