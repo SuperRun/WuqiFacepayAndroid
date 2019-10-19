@@ -27,8 +27,16 @@ public class Config {
     public static String appId = "wx8c97a99600b02985";
     // 商户号
     public static String mchId = "1554649691";
+    // 子商户号
+    public static String subMchId = "1557377971";
     // api密钥
     public static String api = "hangzhouwuqishuzikej201908145757";
+    // 商家名称
+    public static String storeName = "美甲店";
+    // 商家ID
+    public static String storeId = "IMG001";
+    // 订单号
+    public static String orderNo = "";
 
 
 }

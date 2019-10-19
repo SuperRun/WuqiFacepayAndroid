@@ -4,8 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -15,7 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -24,7 +21,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.baidu.aip.FaceSDKManager;
 import com.baidu.aip.ImageFrame;
@@ -37,35 +33,24 @@ import com.baidu.aip.face.camera.ICameraControl;
 import com.baidu.aip.face.camera.PermissionCallback;
 import com.baidu.idl.facesdk.FaceInfo;
 import com.wuqi.facepay.R;
-import com.wuqi.facepay.data.ActivityCode;
-import com.wuqi.facepay.data.model.RegResult;
-import com.wuqi.facepay.exception.FaceError;
-import com.wuqi.facepay.service.APIService;
 import com.wuqi.facepay.util.ImageSaveUtil;
-import com.wuqi.facepay.util.ImageUtil;
-import com.wuqi.facepay.util.OnResultListener;
 import com.wuqi.facepay.views.BrightnessTools;
 import com.wuqi.facepay.views.FaceRoundView;
 import com.wuqi.facepay.views.WaveHelper;
 import com.wuqi.facepay.views.WaveView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.UUID;
+
+import static com.wuqi.facepay.util.Base64RequestBody.readFile;
 
 public class FaceRegisterActivity extends AppCompatActivity {
-    private final static int MSG_INITVIEW = 1001;
-    private final static int MSG_DETECTTIME = 1002;
-    private final static int MSG_INITWAVE = 1003;
+    private static final int MSG_INITVIEW = 1001;
+    private static final int MSG_BEGIN_DETECT = 1002;
     private TextView nameTextView;
     private PreviewView previewView;
     private View mInitView;
-    //  private TextureView textureView;
     private FaceRoundView rectView;
     private boolean mGoodDetect = false;
     private static final double ANGLE = 15;
@@ -73,13 +58,9 @@ public class FaceRegisterActivity extends AppCompatActivity {
     private boolean mDetectStoped = false;
     private ImageView mSuccessView;
     private Handler mHandler;
-    //  private boolean mReDetect = true;
     private String mCurTips;
-    private boolean mDetectTime = true;
-    //  private ProgressBar mProgress;
     private boolean mUploading = false;
     private long mLastTipsTime = 0;
-    private int mDetectCount = 0;
     private int mCurFaceId = -1;
 
     private FaceDetectManager faceDetectManager;
@@ -90,6 +71,11 @@ public class FaceRegisterActivity extends AppCompatActivity {
     private int mBorderWidth = 0;
     private int mScreenW;
     private int mScreenH;
+    private boolean mSavedBmp = false;
+    // 开始人脸检测
+    private boolean mBeginDetect = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +85,7 @@ public class FaceRegisterActivity extends AppCompatActivity {
         initView();
         mHandler = new InnerHandler(this);
         mHandler.sendEmptyMessageDelayed(MSG_INITVIEW, 500);
+        mHandler.sendEmptyMessageDelayed(MSG_BEGIN_DETECT, 500);
     }
 
     private void initScreen() {
@@ -265,8 +252,14 @@ public class FaceRegisterActivity extends AppCompatActivity {
             @Override
             public void onTrack(FaceFilter.TrackedModel trackedModel) {
                 if (trackedModel.meetCriteria() && mGoodDetect) {
-                    upload(trackedModel);
+                    // upload(trackedModel);
                     mGoodDetect = false;
+                    if (!mSavedBmp && mBeginDetect) {
+                        if (saveFaceBmp(trackedModel)) {
+                            setResult(RESULT_OK);
+                            finish();
+                        }
+                    }
                 }
             }
         });
@@ -329,13 +322,11 @@ public class FaceRegisterActivity extends AppCompatActivity {
                     mSuccessView.setTag("setlayout");
                 }
                 mSuccessView.setVisibility(View.GONE);
-
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
                     mSuccessView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 } else {
                     mSuccessView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 }
-                // mSuccessView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
 
@@ -376,6 +367,35 @@ public class FaceRegisterActivity extends AppCompatActivity {
         mInitView.setVisibility(View.INVISIBLE);
     }
 
+    private boolean saveFaceBmp(FaceFilter.TrackedModel model) {
+
+        final Bitmap face = model.cropFace();
+        if (face != null) {
+            Log.d("save", "save bmp");
+            ImageSaveUtil.saveCameraBitmap(FaceRegisterActivity.this, face, "head_tmp.jpg");
+        }
+        String filePath = ImageSaveUtil.loadCameraBitmapPath(this, "head_tmp.jpg");
+        final File file = new File(filePath);
+        if (!file.exists()) {
+            return false;
+        }
+        boolean saved = false;
+        try {
+            byte[] buf = readFile(file);
+            if (buf.length > 0) {
+                saved = true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (!saved) {
+            Log.d("fileSize", "file size >=-99");
+        } else {
+            mSavedBmp = true;
+        }
+        return saved;
+    }
+
     private void initBrightness() {
         int brightness = BrightnessTools.getScreenBrightness(FaceRegisterActivity.this);
         if (brightness < 200) {
@@ -385,11 +405,14 @@ public class FaceRegisterActivity extends AppCompatActivity {
 
 
     private void init() {
+
         FaceSDKManager.getInstance().getFaceTracker(this).set_min_face_size(200);
         FaceSDKManager.getInstance().getFaceTracker(this).set_isCheckQuality(true);
         // 该角度为商学，左右，偏头的角度的阀值，大于将无法检测出人脸，为了在1：n的时候分数高，注册尽量使用比较正的人脸，可自行条件角度
         FaceSDKManager.getInstance().getFaceTracker(this).set_eulur_angle_thr(15, 15, 15);
         FaceSDKManager.getInstance().getFaceTracker(this).set_isVerifyLive(true);
+        FaceSDKManager.getInstance().getFaceTracker(this).set_notFace_thr(0.2f);
+        FaceSDKManager.getInstance().getFaceTracker(this).set_occlu_thr(0.1f);
 
         initBrightness();
     }
@@ -447,150 +470,6 @@ public class FaceRegisterActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 参考https://ai.baidu.com/docs#/Face-API/top 人脸识别接口
-     * 无需知道uid，如果同一个人多次注册，可能返回任意一个帐号的uid
-     * 建议上传人脸到自己的服务器，在服务器端调用https://aip.baidubce.com/rest/2.0/face/v3/search，比对分数阀值（如：80分），
-     * 认为登录通过
-     * group_id	是	string	用户组id（由数字、字母、下划线组成），长度限制128B，如果需要查询多个用户组id，用逗号分隔
-     * image	是	string	图像base64编码，每次仅支持单张图片，图片编码后大小不超过10M
-     *
-     * 返回登录认证的参数给客户端
-     *
-     * @param model
-     */
-    private void upload(FaceFilter.TrackedModel model) {
-        if (mUploading) {
-            Log.d("liujinhui", "is uploading");
-            return;
-        }
-        mUploading = true;
-
-        if (model.getEvent() != FaceFilter.Event.OnLeave) {
-            mDetectCount++;
-
-            try {
-                final Bitmap face = model.cropFace();
-                final File file = File.createTempFile(UUID.randomUUID().toString() + "", ".jpg");
-                ImageUtil.resize(face, file, 200, 200);
-                ImageSaveUtil.saveCameraBitmap(FaceRegisterActivity.this, face, "head_tmp.jpg");
-
-                APIService.getInstance().identify(new OnResultListener<RegResult>() {
-                    @Override
-                    public void onResult(RegResult result) {
-                        deleteFace(file);
-                        if (result == null) {
-                            mUploading = false;
-                            if (mDetectCount >= 3) {
-                                Toast.makeText(FaceRegisterActivity.this, "人脸校验不通过,请确认是否已注册", Toast.LENGTH_SHORT).show();
-                                finish();
-                            }
-                            return;
-                        }
-
-                        String res = result.getJsonRes();
-                        Log.d("DetectLoginActivity", "res is:" + res);
-                        double maxScore = 0;
-                        String userId = "";
-                        String userInfo = "";
-                        if (TextUtils.isEmpty(res)) {
-                            return;
-                        }
-                        JSONObject obj = null;
-                        try {
-                            obj = new JSONObject(res);
-                            JSONObject resObj = obj.optJSONObject("result");
-                            if (resObj != null) {
-                                JSONArray resArray = resObj.optJSONArray("user_list");
-                                int size = resArray.length();
-
-
-                                for (int i = 0; i < size; i++) {
-                                    JSONObject s = (JSONObject) resArray.get(i);
-                                    if (s != null) {
-                                        double score = s.getDouble("score");
-                                        if (score > maxScore) {
-                                            maxScore = score;
-                                            userId = s.getString("user_id");
-                                            userInfo = s.getString("user_info");
-                                        }
-
-                                    }
-                                }
-
-                            }
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        if (maxScore > 80) {
-                            Log.d("DetectLoginActivity", "onResult ok");
-                            mDetectTime = false;
-//                            Intent intent = new Intent(FaceRegisterActivity.this, FaceRegisterActivity.class);
-//                            intent.putExtra("login_success", true);
-//                            intent.putExtra("user_info", userInfo);
-//                            intent.putExtra("uid", userId);
-//                            intent.putExtra("score", maxScore);
-//                            startActivity(intent);
-                            Intent intent = new Intent();
-                            setResult(ActivityCode.REGISTER_SUCCESS);
-                            finish();
-                            return;
-                        } else {
-                            Log.d("DetectLoginActivity", "onResult fail");
-                            if (mDetectCount >= 3) {
-                                mDetectTime = false;
-                                Toast.makeText(FaceRegisterActivity.this, "人脸校验不通过,请确认是否已注册", Toast.LENGTH_SHORT).show();
-                                finish();
-                                return;
-                            }
-
-                        }
-                        mUploading = false;
-                    }
-
-                    @Override
-                    public void onError(FaceError error) {
-                        error.printStackTrace();
-                        deleteFace(file);
-
-                        mUploading = false;
-                        if (error.getErrorCode() == 216611) {
-                            mDetectTime = false;
-                            Intent intent = new Intent();
-                            intent.putExtra("login_success", false);
-                            intent.putExtra("error_code", error.getErrorCode());
-                            intent.putExtra("error_msg", error.getErrorMessage());
-                            setResult(Activity.RESULT_OK, intent);
-                            finish();
-                            return;
-                        }
-
-                        if (mDetectCount >= 3) {
-                            mDetectTime = false;
-                            if (error.getErrorCode() == 10000) {
-                                Toast.makeText(FaceRegisterActivity.this, "人脸校验不通过,请检查网络后重试", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(FaceRegisterActivity.this, "人脸校验不通过", Toast.LENGTH_SHORT).show();
-                            }
-                            finish();
-                            return;
-                        }
-                    }
-                }, file);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ArrayIndexOutOfBoundsException e) {
-                e.printStackTrace();
-            }
-        } else {
-            onRefreshSuccessView(false);
-            showProgressBar(false);
-            mUploading = false;
-        }
-    }
-
     private void showProgressBar(final boolean show) {
         runOnUiThread(new Runnable() {
             @Override
@@ -611,12 +490,6 @@ public class FaceRegisterActivity extends AppCompatActivity {
         });
     }
 
-    private void deleteFace(File file) {
-        if (file != null && file.exists()) {
-            file.delete();
-        }
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -629,7 +502,6 @@ public class FaceRegisterActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mDetectTime = true;
         if (mDetectStoped) {
             faceDetectManager.start();
             mDetectStoped = false;
@@ -672,8 +544,8 @@ public class FaceRegisterActivity extends AppCompatActivity {
                 case MSG_INITVIEW:
                     activity.visibleView();
                     break;
-                case MSG_DETECTTIME:
-                    activity.mDetectTime = true;
+                case MSG_BEGIN_DETECT:
+                    activity.mBeginDetect = true;
                     break;
                 default:
                     break;
