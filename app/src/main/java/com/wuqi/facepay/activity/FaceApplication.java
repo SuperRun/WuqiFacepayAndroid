@@ -1,4 +1,4 @@
-package com.wuqi.facepay.ui;
+package com.wuqi.facepay.activity;
 
 import android.app.Application;
 import android.os.Handler;
@@ -9,7 +9,7 @@ import android.widget.Toast;
 import com.baidu.aip.FaceEnvironment;
 import com.baidu.aip.FaceSDKManager;
 import com.baidu.idl.facesdk.FaceTracker;
-import com.wuqi.facepay.data.model.AccessToken;
+import com.wuqi.facepay.bean.AccessToken;
 import com.wuqi.facepay.exception.FaceError;
 import com.wuqi.facepay.service.APIService;
 import com.wuqi.facepay.util.Config;

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2017 Baidu, Inc. All Rights Reserved.
  */
-package com.wuqi.facepay.data.model;
+package com.wuqi.facepay.bean;
 
 public class AccessToken {
 

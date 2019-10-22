@@ -6,7 +6,7 @@ package com.wuqi.facepay.util;
 import android.util.Log;
 
 
-import com.wuqi.facepay.data.model.RegResult;
+import com.wuqi.facepay.bean.RegResult;
 import com.wuqi.facepay.exception.FaceError;
 
 import org.json.JSONException;

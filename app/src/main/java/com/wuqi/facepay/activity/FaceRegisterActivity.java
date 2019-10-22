@@ -1,4 +1,4 @@
-package com.wuqi.facepay.ui.member;
+package com.wuqi.facepay.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -88,6 +88,9 @@ public class FaceRegisterActivity extends AppCompatActivity {
         mHandler.sendEmptyMessageDelayed(MSG_BEGIN_DETECT, 500);
     }
 
+    /**
+     * 获取设备长宽
+     */
     private void initScreen() {
         WindowManager manager = getWindowManager();
         DisplayMetrics outMetrics = new DisplayMetrics();
@@ -95,6 +98,7 @@ public class FaceRegisterActivity extends AppCompatActivity {
         mScreenW = outMetrics.widthPixels;
         mScreenH = outMetrics.heightPixels;
     }
+
 
     private void initView() {
 
@@ -109,13 +113,9 @@ public class FaceRegisterActivity extends AppCompatActivity {
         faceDetectManager.setOnFaceDetectListener(new FaceDetectManager.OnFaceDetectListener() {
             @Override
             public void onDetectFace(final int retCode, FaceInfo[] infos, ImageFrame frame) {
-
-
                 if (mUploading) {
-                    //   Log.d("DetectLoginActivity", "is uploading ,not detect time");
                     return;
                 }
-                //  Log.d("DetectLoginActivity", "retCode is:" + retCode);
                 String str = "";
                 if (retCode == 0) {
                     if (infos != null && infos[0] != null) {
@@ -248,6 +248,7 @@ public class FaceRegisterActivity extends AppCompatActivity {
 
             }
         });
+
         faceDetectManager.setOnTrackListener(new FaceFilter.OnTrackListener() {
             @Override
             public void onTrack(FaceFilter.TrackedModel trackedModel) {

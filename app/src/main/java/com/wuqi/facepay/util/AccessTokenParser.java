@@ -3,7 +3,7 @@
  */
 package com.wuqi.facepay.util;
 
-import com.wuqi.facepay.data.model.AccessToken;
+import com.wuqi.facepay.bean.AccessToken;
 import com.wuqi.facepay.exception.FaceError;
 
 import org.json.JSONException;

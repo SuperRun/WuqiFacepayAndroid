@@ -8,8 +8,8 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.wuqi.facepay.data.model.AccessToken;
-import com.wuqi.facepay.data.model.RequestParams;
+import com.wuqi.facepay.bean.AccessToken;
+import com.wuqi.facepay.bean.RequestParams;
 import com.wuqi.facepay.exception.FaceError;
 import com.wuqi.facepay.service.APIService;
 
@@ -24,7 +24,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
- * 使用okhttp请求tokeh和调用服务
+ * 使用okhttp请求token和调用服务
  */
 public class HttpUtil {
 

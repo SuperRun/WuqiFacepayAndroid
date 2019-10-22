@@ -14,10 +14,9 @@ public class Config {
     public static String secretKey = "d7hlN0rmOZVQPta7ykWQix8UbRD4mURC";
     public static String licenseID = "wuqi-facepay-face-android";
     public static String licenseFileName = "idl-license.face-android";
+
     /*
-     * <p>
      * 每个开发者账号只能创建一个人脸库；groupID用于标识人脸库
-     * <p>
      * 人脸识别 接口 https://aip.baidubce.com/rest/2.0/face/v3/search
      * 人脸注册 接口 https://aip.baidubce.com/rest/2.0/face/v3/faceset/user/add
      */
@@ -37,6 +36,4 @@ public class Config {
     public static String storeId = "IMG001";
     // 订单号
     public static String orderNo = "";
-
-
 }

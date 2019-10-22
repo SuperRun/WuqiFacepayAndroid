@@ -88,15 +88,8 @@ public class FaceError extends Exception{
     }
 
     private int errorCode;
+
     private String errorMessage;
 
     private Throwable cause;
-
-//    @Override
-//    public String getMessage() {
-//        if(cause != null) {
-//
-//        }
-//        return super.getMessage();
-//    }
 }

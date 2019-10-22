@@ -8,8 +8,8 @@ import android.util.Base64;
 import android.util.Log;
 
 
-import com.wuqi.facepay.data.model.AccessToken;
-import com.wuqi.facepay.data.model.RegParams;
+import com.wuqi.facepay.bean.AccessToken;
+import com.wuqi.facepay.bean.RegParams;
 import com.wuqi.facepay.util.DeviceUuidFactory;
 import com.wuqi.facepay.util.HttpUtil;
 import com.wuqi.facepay.util.OnResultListener;
@@ -22,15 +22,13 @@ import static com.wuqi.facepay.util.Base64RequestBody.readFile;
 
 public class APIService {
 
-    private static final String BASE_URL = "https://aip.baidubce.com";
+    private static final String BAIDU_BASE_URL = "https://aip.baidubce.com";
+    private static final String ACCESS_TOEKN_URL = BAIDU_BASE_URL + "/oauth/2.0/token?";
+    private static final String REG_URL = BAIDU_BASE_URL + "/rest/2.0/face/v3/faceset/user/add";
+    private static final String IDENTIFY_URL = BAIDU_BASE_URL + "/rest/2.0/face/v3/search";
+    private static final String VERIFY_URL = BAIDU_BASE_URL + "/rest/2.0/face/v3/verify";
 
-    private static final String ACCESS_TOEKN_URL = BASE_URL + "/oauth/2.0/token?";
-
-    private static final String REG_URL = BASE_URL + "/rest/2.0/face/v3/faceset/user/add";
-
-
-    private static final String IDENTIFY_URL = BASE_URL + "/rest/2.0/face/v3/search";
-    private static final String VERIFY_URL = BASE_URL + "/rest/2.0/face/v3/verify";
+    private static final String WX_BASE_URL = "";
 
     private String accessToken;
 
@@ -47,8 +45,6 @@ public class APIService {
             synchronized (APIService.class) {
                 if (instance == null) {
                     instance = new APIService();
-
-
                 }
             }
         }

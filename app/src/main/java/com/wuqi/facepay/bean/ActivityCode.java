@@ -1,5 +1,11 @@
-package com.wuqi.facepay.data;
+package com.wuqi.facepay.bean;
 
+/**
+ * @ClassName ActivityCode
+ * @Description
+ * @Author Luo Yi
+ * @Date 2019/10/21 17:38
+ */
 public class ActivityCode {
     // 请求状态码
     // 结果页面-> 人脸注册页面
