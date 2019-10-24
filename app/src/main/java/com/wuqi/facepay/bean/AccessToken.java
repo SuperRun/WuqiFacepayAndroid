@@ -3,6 +3,7 @@
  */
 package com.wuqi.facepay.bean;
 
+
 public class AccessToken {
 
     private String accessToken;

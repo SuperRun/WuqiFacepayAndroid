@@ -1,6 +1,7 @@
 package com.wuqi.facepay.activity;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -12,11 +13,13 @@ import com.baidu.idl.facesdk.FaceTracker;
 import com.wuqi.facepay.bean.AccessToken;
 import com.wuqi.facepay.exception.FaceError;
 import com.wuqi.facepay.service.APIService;
-import com.wuqi.facepay.util.Config;
+import com.wuqi.facepay.config.FaceConfig;
+import com.wuqi.facepay.util.FacePay;
 import com.wuqi.facepay.util.OnResultListener;
 
 public class FaceApplication extends Application {
     private Handler handler = new Handler(Looper.getMainLooper());
+    public static FaceApplication instance = null;
 
     public static final float VALUE_BRIGHTNESS = 40.0F;
     public static final float VALUE_BLURNESS = 0.7F;
@@ -31,11 +34,11 @@ public class FaceApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        instance = this;
         initLib();
-
+        Log.d("FaceApplication", "onCreate: ");
         APIService.getInstance().init(this);
-        APIService.getInstance().setGroupId(Config.groupID);
+        APIService.getInstance().setGroupId(FaceConfig.groupID);
         // 用ak，sk获取token, 调用在线api，如：注册、识别等。为了ak、sk安全，建议放您的服务器，
         APIService.getInstance().initAccessTokenWithAkSk(new OnResultListener<AccessToken>() {
             @Override
@@ -56,7 +59,10 @@ public class FaceApplication extends Application {
                 error.printStackTrace();
 
             }
-        }, this, Config.apiKey, Config.secretKey);
+        }, this, FaceConfig.apiKey, FaceConfig.secretKey);
+
+        // 初始化微信刷脸sdk
+        FacePay.initPayFace(this);
     }
 
     /**
@@ -67,7 +73,7 @@ public class FaceApplication extends Application {
         // 应用上下文
         // 申请License取得的APPID
         // assets目录下License文件名
-        FaceSDKManager.getInstance().init(this, Config.licenseID, Config.licenseFileName);
+        FaceSDKManager.getInstance().init(this, FaceConfig.licenseID, FaceConfig.licenseFileName);
         setFaceConfig();
     }
 

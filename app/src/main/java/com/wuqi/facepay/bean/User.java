@@ -9,21 +9,31 @@ import android.text.Editable;
  * @Date 2019/10/21 16:04
  */
 public class User {
-    private String userName;
+    private String account;
 
     private String password;
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    private String token;
+
     public User(String userName, String password) {
-        this.userName = userName;
+        this.account = userName;
         this.password = password;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getAccoount() {
+        return account;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setAccount(String account) {
+        this.account = account;
     }
 
     public String getPassword() {

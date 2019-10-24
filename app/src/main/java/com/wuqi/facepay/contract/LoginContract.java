@@ -2,6 +2,9 @@ package com.wuqi.facepay.contract;
 
 import com.wuqi.facepay.bean.User;
 
+import okhttp3.Callback;
+
+
 /**
  * @ClassName LoginPresenter
  * @Description
@@ -10,7 +13,7 @@ import com.wuqi.facepay.bean.User;
  */
 public interface LoginContract {
     interface Model {
-        int login(User user);
+        void login(User user, Callback callback);
     }
 
     interface View {

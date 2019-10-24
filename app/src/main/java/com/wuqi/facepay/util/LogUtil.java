@@ -92,7 +92,7 @@ public class LogUtil {
      * The Constant LOG_ENTRY_FORMAT.
      */
     static final String LOG_ENTRY_FORMAT = "[%tF %tT][%s][%s]%s"; // [2010-01-22
-    // 13:39:1][D][com.a.c]error
+    // 13:39:1][D][com.a.CarouselContract]error
     // occured
     /**
      * The log stream.

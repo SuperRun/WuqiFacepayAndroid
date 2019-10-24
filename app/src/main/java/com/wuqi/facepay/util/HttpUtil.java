@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.wuqi.facepay.bean.AccessToken;
 import com.wuqi.facepay.bean.RequestParams;
+import com.wuqi.facepay.bean.User;
 import com.wuqi.facepay.exception.FaceError;
 import com.wuqi.facepay.service.APIService;
 

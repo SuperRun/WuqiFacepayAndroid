@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2017 Baidu, Inc. All Rights Reserved.
  */
-package com.wuqi.facepay.util;
+package com.wuqi.facepay.config;
 
 
-public class Config {
+public class FaceConfig {
 
 
     // 为了apiKey,secretKey为您调用百度人脸在线接口的，如注册，比对等。
